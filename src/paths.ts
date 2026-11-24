@@ -10,6 +10,7 @@ export const paths = {
     products: '/dashboard/products',
     orders: '/dashboard/orders',
     won: '/dashboard/won',
+    sellers: '/dashboard/sellers',
 
   },
   errors: { notFound: '/errors/not-found' },

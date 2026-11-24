@@ -15,6 +15,7 @@ import type { NavItemConfig } from '@/types/nav';
 import { paths } from '@/paths';
 import { isNavItemActive } from '@/lib/is-nav-item-active';
 import { Logo } from '@/components/core/logo';
+import { useUser } from '@/hooks/use-user';
 
 import { navItems } from './config';
 import { navIcons } from './nav-icons';
@@ -26,6 +27,7 @@ export interface MobileNavProps {
 }
 
 export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element {
+  const { user } = useUser();
   const pathname = usePathname();
 
   return (
@@ -76,7 +78,7 @@ export function MobileNav({ open, onClose }: MobileNavProps): React.JSX.Element 
               Admin
             </Typography>
             <Typography color="inherit" variant="subtitle1">
-             Simon
+              {user?.name ?? 'Admin'}
             </Typography>
           </Box>
           

@@ -1,98 +1,76 @@
 "use client";
 
 import * as React from 'react';
-import { useState, useEffect } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import Alert from '@mui/material/Alert';
 import Stack from '@mui/material/Stack';
 import Typography from '@mui/material/Typography';
-import { collection, getDocs, query } from 'firebase/firestore';
-import { firestore } from '@/lib/firebase';
+
+import { adminApi, errorText } from '@/lib/admin-api';
 import { CustomersFilters } from '@/components/dashboard/customer/customers-filters';
 import { CustomersTable } from '@/components/dashboard/customer/customers-table';
 import type { Customer } from '@/components/dashboard/customer/customers-table';
+
 const defaultAvatar = "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcSkDJfPSHbJNWU--A28PviuwAvceqb72s7HTg&s";
 
 export default function Page(): React.JSX.Element {
   const [customers, setCustomers] = useState<Customer[]>([]);
-  const [filteredCustomers, setFilteredCustomers] = useState<Customer[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const [page, setPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(5);
+  const [rowsPerPage, setRowsPerPage] = useState(10);
 
   useEffect(() => {
-    const fetchUsers = async () => {
-      try {
-        setLoading(true);
-        const usersQuery = query(collection(firestore, "users"));
-        const usersSnapshot = await getDocs(usersQuery);
-        const usersData: Customer[] = usersSnapshot.docs.map((doc) => {
-          const data = doc.data();
-          return {
-            id: doc.id,
-            avatar: data.profileImage || defaultAvatar,
-            name: `${data.fname || ''} ${data.Lname || ''}`.trim() || 'Unknown',
-            email: data.email || '',
-            address: {
-              street: data.address || '',
-              city: data.city || '',
-              state: data.postcode || 'N/A',
-              country: 'Denmark', 
-            },
-            phone: data.phone || '',
-            createdAt: data.createdAt ? new Date(data.createdAt) : new Date(),
-            accountTypes: data.accountTypes || '',
-            swiftBic: data.swiftBic || '',
-            iban: data.iban || '',
-           
-          };
-        });
-        // Sort users by createdAt in descending order (latest first)
-        usersData.sort((a, b) => b.createdAt.getTime() - a.createdAt.getTime());
-        setCustomers(usersData);
-        setFilteredCustomers(usersData);
-        setError(null);
-      } finally {
-        setLoading(false);
-      }
-    };
-
-    fetchUsers();
+    adminApi
+      .users()
+      .then((users) =>
+        setCustomers(
+          users.map((u) => ({
+            id: u.id,
+            avatar: u.avatar || defaultAvatar,
+            name: u.name,
+            email: u.email,
+            address: { street: u.address, city: u.city, state: u.postcode || 'N/A', country: 'Denmark' },
+            phone: u.phone,
+            createdAt: u.createdAt ? new Date(u.createdAt) : new Date(0),
+            accountTypes: u.accountType,
+            swiftBic: u.swiftBic,
+            iban: u.iban,
+          }))
+        )
+      )
+      .catch((error_) => setError(errorText(error_)))
+      .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => {
-    const filtered = customers.filter((customer) =>
-      customer.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.address.city.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      customer.phone.toLowerCase().includes(searchQuery.toLowerCase())
+  const filteredCustomers = useMemo(() => {
+    const q = searchQuery.toLowerCase();
+    if (!q) return customers;
+    return customers.filter(
+      (c) =>
+        c.name.toLowerCase().includes(q) ||
+        c.email.toLowerCase().includes(q) ||
+        c.address.city.toLowerCase().includes(q) ||
+        c.phone.toLowerCase().includes(q)
     );
-    setFilteredCustomers(filtered);
-    setPage(0); 
-  }, [searchQuery, customers]);
-
-  const handlePageChange = (event: unknown, newPage: number) => {
-    setPage(newPage);
-  };
-
-  const handleRowsPerPageChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    setRowsPerPage(Number.parseInt(event.target.value, 10));
-    setPage(0);
-  };
+  }, [customers, searchQuery]);
 
   const paginatedCustomers = filteredCustomers.slice(page * rowsPerPage, page * rowsPerPage + rowsPerPage);
 
   return (
     <Stack spacing={3}>
-      <Stack direction="row" spacing={3}>
-        <Stack spacing={1} sx={{ flex: '1 1 auto' }}>
-          <Typography variant="h4">Customers</Typography>
-        </Stack>
-      </Stack>
-      <CustomersFilters onSearch={(query) => setSearchQuery(query)} />
+      <Typography variant="h4">Customers ({customers.length})</Typography>
+      <CustomersFilters
+        onSearch={(query) => {
+          setSearchQuery(query);
+          setPage(0);
+        }}
+      />
       {loading ? (
         <Typography>Loading...</Typography>
       ) : error ? (
-        <Typography color="error">{error}</Typography>
+        <Alert severity="error">{error}</Alert>
       ) : filteredCustomers.length === 0 ? (
         <Typography>No users found.</Typography>
       ) : (
@@ -101,8 +79,11 @@ export default function Page(): React.JSX.Element {
           page={page}
           rows={paginatedCustomers}
           rowsPerPage={rowsPerPage}
-          onPageChange={handlePageChange}
-          onRowsPerPageChange={handleRowsPerPageChange}
+          onPageChange={(_e, newPage) => setPage(newPage)}
+          onRowsPerPageChange={(e) => {
+            setRowsPerPage(Number.parseInt(e.target.value, 10));
+            setPage(0);
+          }}
         />
       )}
     </Stack>

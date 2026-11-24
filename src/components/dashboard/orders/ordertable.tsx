@@ -22,7 +22,7 @@ export interface OfferData {
   offerAmount: number;
   paymentIntentId?: string;
   email: string;
-  status: 'pending' | 'won' | 'refunded';
+  status: 'pending' | 'won' | 'refunded' | 'lost' | 'outbid' | 'cancelled' | 'payment_failed';
   deliveryOption: 'pickup' | 'delivery';
   carrier: string;
   subscribe: boolean;
@@ -46,6 +46,10 @@ const statusMap = {
   pending: { label: 'Pending', color: 'warning' },
   won: { label: 'Won', color: 'success' },
   refunded: { label: 'Refunded', color: 'error' },
+  lost: { label: 'Lost', color: 'default' },
+  outbid: { label: 'Outbid', color: 'default' },
+  cancelled: { label: 'Cancelled', color: 'error' },
+  payment_failed: { label: 'Payment failed', color: 'error' },
 } as const;
 
 interface OrdersTableProps {

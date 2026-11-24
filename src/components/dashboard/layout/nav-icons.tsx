@@ -7,6 +7,7 @@ import { UsersIcon } from '@phosphor-icons/react/dist/ssr/Users';
 import { XSquare } from '@phosphor-icons/react/dist/ssr/XSquare';
 import { PackageIcon } from '@phosphor-icons/react/dist/ssr/Package';
 import { ReceiptIcon } from '@phosphor-icons/react';
+import { StorefrontIcon } from '@phosphor-icons/react/dist/ssr/Storefront';
 export const navIcons = {
   'chart-pie': ChartPieIcon,
   'gear-six': GearSixIcon,
@@ -16,6 +17,7 @@ export const navIcons = {
   users: UsersIcon,
   packege:PackageIcon,
   order:ReceiptIcon,
+  storefront: StorefrontIcon,
   
 
 
