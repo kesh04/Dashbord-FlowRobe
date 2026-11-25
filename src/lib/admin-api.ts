@@ -108,6 +108,60 @@ export interface AdminSeller {
   sales: AdminOffer[];
 }
 
+export type FinanceRange = '7d' | '30d' | 'month' | 'year' | 'all';
+
+export interface FinanceTotals {
+  orders: number;
+  buyersPaid: number;
+  sellersEarned: number;
+  sellersPaidOut: number;
+  sellersPending: number;
+  shipping: number;
+  serviceFees: number;
+  stripeFees: number;
+  stripeFeesEstimated: number;
+  flowrobeNet: number;
+}
+
+export interface FinanceMonth {
+  month: string;
+  orders: number;
+  buyersPaid: number;
+  sellersEarned: number;
+  shipping: number;
+  serviceFees: number;
+  stripeFees: number;
+  flowrobeNet: number;
+}
+
+export interface FinanceOrder {
+  id: string;
+  orderId: string;
+  headline: string;
+  buyer: string;
+  seller: string;
+  date: string;
+  delivery: string;
+  buyerPaid: number;
+  sellerEarned: number;
+  shipping: number;
+  serviceFee: number;
+  stripeFee: number;
+  stripeFeeEstimated: boolean;
+  flowrobeNet: number;
+  sellerPaid: boolean;
+}
+
+export interface AdminFinances {
+  range: FinanceRange;
+  from: string | null;
+  totals: FinanceTotals;
+  refunds: { orders: number; amount: number };
+  monthly: FinanceMonth[];
+  orders: FinanceOrder[];
+  stripeFeesPending: number;
+}
+
 export interface AdminOverview {
   counts: { users: number; products: number; orders: number; won: number };
   averages: { day: number; week: number; month: number; year: number; allTime: number };
@@ -138,6 +192,7 @@ export const adminApi = {
   products: (force = false) => call<AdminProduct[]>('adminListProducts', {}, force),
   offers: (status?: string, force = false) => call<AdminOffer[]>('adminListOffers', status ? { status } : {}, force),
   sellers: (force = false) => call<AdminSeller[]>('adminListSellers', {}, force),
+  finances: (range: FinanceRange, force = false) => call<AdminFinances>('adminGetFinances', { range }, force),
 };
 
 export function errorText(error: unknown): string {

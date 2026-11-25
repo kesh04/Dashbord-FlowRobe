@@ -11,6 +11,7 @@ export const paths = {
     orders: '/dashboard/orders',
     won: '/dashboard/won',
     sellers: '/dashboard/sellers',
+    finances: '/dashboard/finances',
 
   },
   errors: { notFound: '/errors/not-found' },
