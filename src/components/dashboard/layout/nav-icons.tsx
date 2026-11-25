@@ -8,6 +8,7 @@ import { XSquare } from '@phosphor-icons/react/dist/ssr/XSquare';
 import { PackageIcon } from '@phosphor-icons/react/dist/ssr/Package';
 import { ReceiptIcon } from '@phosphor-icons/react';
 import { StorefrontIcon } from '@phosphor-icons/react/dist/ssr/Storefront';
+import { CurrencyCircleDollarIcon } from '@phosphor-icons/react/dist/ssr/CurrencyCircleDollar';
 export const navIcons = {
   'chart-pie': ChartPieIcon,
   'gear-six': GearSixIcon,
@@ -18,6 +19,7 @@ export const navIcons = {
   packege:PackageIcon,
   order:ReceiptIcon,
   storefront: StorefrontIcon,
+  currency: CurrencyCircleDollarIcon,
   
 
 
